@@ -1,7 +1,7 @@
 import sys
 import subprocess
 
-# === 修复依赖问题 ===
+# === 修复依赖问题 - 无Streamlit版本 ===
 # 在导入其他库之前确保核心依赖已安装
 required_packages = [
     'joblib==1.4.0',
@@ -9,30 +9,29 @@ required_packages = [
     'pandas==2.0.3'
 ]
 
-st_cloud = not hasattr(sys, 'real_prefix')  # 检查是否在Streamlit Cloud环境
+# 检查是否在Streamlit Cloud环境
+st_cloud = not hasattr(sys, 'real_prefix') and 'adminuser' in sys.executable
 
 if st_cloud:
-    st.subheader("依赖安装状态")
-    st.info("检测到Streamlit Cloud环境，正在安装所需依赖...")
-    
+    print("检测到Streamlit Cloud环境，正在安装所需依赖...")
     try:
         for package in required_packages:
             package_name = package.split('==')[0]
             try:
                 __import__(package_name)
-                st.success(f"✅ {package_name} 已安装")
+                print(f"✅ {package_name} 已安装")
             except ImportError:
-                st.warning(f"⚠️ {package_name} 未安装，正在安装...")
+                print(f"⚠️ {package_name} 未安装，正在安装...")
                 result = subprocess.run(
                     [sys.executable, "-m", "pip", "install", package],
                     capture_output=True, text=True
                 )
                 if result.returncode == 0:
-                    st.success(f"✅ {package} 安装成功")
+                    print(f"✅ {package} 安装成功")
                 else:
-                    st.error(f"❌ {package} 安装失败: {result.stderr}")
+                    print(f"❌ {package} 安装失败: {result.stderr}")
     except Exception as e:
-        st.error(f"依赖安装过程中出错: {str(e)}")
+        print(f"依赖安装过程中出错: {str(e)}")
 
 # 现在导入其他库
 import streamlit as st
